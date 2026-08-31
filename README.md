@@ -27,6 +27,26 @@ EduGuard brings students, lecturers, and administrators into one controlled work
 
 The interface is responsive, animated, and organized around three protected workspaces:
 
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="frontend/public/StudentLogin.png" alt="EduGuard student role icon" width="150" /><br />
+      <strong>Student workspace</strong><br />
+      <sub>Submit work, follow analysis, explore released evidence, and respond to feedback.</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="frontend/public/LecturerLogin.png" alt="EduGuard lecturer role icon" width="150" /><br />
+      <strong>Lecturer workspace</strong><br />
+      <sub>Review evidence, correct false detections, mark submissions, and publish feedback.</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="frontend/public/AdminLogin.png" alt="EduGuard administrator role icon" width="150" /><br />
+      <strong>Administrator workspace</strong><br />
+      <sub>Govern access, classes, institutional reporting, announcements, and platform settings.</sub>
+    </td>
+  </tr>
+</table>
+
 | Workspace | Core capabilities |
 | --- | --- |
 | **Student** | Join classes, view work, submit PDFs, follow processing status, inspect released integrity evidence, receive marked reports, and discuss feedback. |
@@ -64,6 +84,7 @@ EduGuard deliberately separates presentation, orchestration, analysis, and state
 - **Evidence before verdicts** — detailed sources, highlighted text, component signals, and confidence context remain inspectable.
 - **False-positive governance** — lecturer overrides are locked, idempotent, persisted, and versioned.
 - **Private document handling** — generated upload paths are excluded from Git; S3 objects are private and accessed through short-lived signed operations.
+- **Memory-bound browser identity** — account metadata stays in application state instead of persistent web storage, reducing exposure on shared devices.
 - **Resilient submission rules** — failed analysis does not consume a valid attempt, while attempt identifiers remain collision-safe.
 - **Focused delivery** — route-level lazy loading reduced the production entry bundle from a monolithic payload to independently loaded feature chunks.
 - **Layered verification** — backend, component, browser, API-collection, and performance suites cover the system at different boundaries.
@@ -166,7 +187,7 @@ celery -A app.workers.celery_app.celery_app worker --loglevel=INFO
 
 ## Verification
 
-The repository includes **370 automated checks** across the PostgreSQL backend, frontend component layer, and browser workflows, plus API and performance collections.
+The repository includes **375 automated checks** across the PostgreSQL backend, frontend component layer, and browser workflows, plus API and performance collections.
 
 ### Frontend quality gate
 
@@ -176,7 +197,7 @@ npm ci
 npm run check
 ```
 
-This runs ESLint, 97 Vitest/Testing Library checks, TypeScript compilation, and the optimized Vite production build.
+This runs ESLint, 98 Vitest/Testing Library checks, TypeScript compilation, and the optimized Vite production build.
 
 ### PostgreSQL backend suite
 
@@ -188,7 +209,7 @@ source .venv/bin/activate
 python -m pytest -q
 ```
 
-The suite contains 242 tests across access control, document management, integrity analysis, false-detection review, reporting, feedback, and realtime communication.
+The suite contains 246 tests across access control, document management, integrity analysis, false-detection review, reporting, feedback, and realtime communication.
 
 ### Browser workflows
 
@@ -211,6 +232,7 @@ Performance scripts expect a running, disposable environment. Review their envir
 ## Security and data boundaries
 
 - Never commit `.env` files, OAuth secrets, cloud credentials, database exports, or runtime uploads.
+- Keep authenticated identity in application memory; route handoff state carries short-lived sign-in challenges without persistent browser storage.
 - Use synthetic documents for tests and demonstrations.
 - Keep object-storage buckets private and grant the application only the permissions it needs.
 - Treat AI-risk and similarity outputs as probabilistic evidence, not proof of misconduct.
