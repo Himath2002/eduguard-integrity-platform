@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="600" viewBox="0 0 1600 600" role="img" aria-labelledby="title description">
+  <title id="title">EduGuard academic integrity platform</title>
+  <desc id="description">A dark blue animated banner presenting EduGuard as a human-led academic integrity workspace.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050914"/>
+      <stop offset="0.52" stop-color="#07182b"/>
+      <stop offset="1" stop-color="#08111f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="0.5" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+    <radialGradient id="violetGlow">
+      <stop offset="0" stop-color="#7c3aed" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cyanGlow">
+      <stop offset="0" stop-color="#06b6d4" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="52" height="52" patternUnits="userSpaceOnUse">
+      <path d="M 52 0 L 0 0 0 52" fill="none" stroke="#94a3b8" stroke-opacity="0.055"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#020617" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="600" rx="34" fill="url(#background)"/>
+  <rect width="1600" height="600" rx="34" fill="url(#grid)"/>
+  <circle cx="1280" cy="90" r="420" fill="url(#violetGlow)">
+    <animate attributeName="r" values="390;435;390" dur="8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="1400" cy="520" r="390" fill="url(#cyanGlow)">
+    <animate attributeName="cx" values="1370;1420;1370" dur="10s" repeatCount="indefinite"/>
+  </circle>
+
+  <g transform="translate(106,92)" filter="url(#shadow)">
+    <rect width="416" height="416" rx="72" fill="#0b1425" stroke="#64748b" stroke-opacity="0.28"/>
+    <rect x="34" y="34" width="348" height="348" rx="56" fill="url(#accent)" opacity="0.13"/>
+    <path d="M208 87 314 127v84c0 67-43 105-106 133-63-28-106-66-106-133v-84z" fill="none" stroke="url(#accent)" stroke-width="20" stroke-linejoin="round"/>
+    <path d="m156 215 34 35 72-81" fill="none" stroke="#e2e8f0" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="208" cy="208" r="142" fill="none" stroke="#38bdf8" stroke-opacity="0.14" stroke-width="2">
+      <animate attributeName="r" values="132;152;132" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-opacity" values="0.08;0.28;0.08" dur="4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <g transform="translate(600,116)" font-family="Inter, ui-sans-serif, system-ui, -apple-system, sans-serif">
+    <text x="0" y="46" fill="#a5b4fc" font-size="19" font-weight="700" letter-spacing="6">ACADEMIC INTEGRITY, MADE ACTIONABLE</text>
+    <text x="0" y="158" fill="#f8fafc" font-size="106" font-weight="800" letter-spacing="-5">EduGuard</text>
+    <text x="4" y="214" fill="#cbd5e1" font-size="27" font-weight="450">Evidence-led review for students, lecturers, and administrators.</text>
+
+    <g transform="translate(4,270)" font-size="18" font-weight="650">
+      <g>
+        <rect width="246" height="54" rx="27" fill="#111c31" stroke="#6366f1" stroke-opacity="0.55"/>
+        <circle cx="28" cy="27" r="7" fill="#818cf8"/>
+        <text x="48" y="34" fill="#e2e8f0">Human-led review</text>
+      </g>
+      <g transform="translate(266,0)">
+        <rect width="257" height="54" rx="27" fill="#111c31" stroke="#22d3ee" stroke-opacity="0.5"/>
+        <circle cx="28" cy="27" r="7" fill="#22d3ee"/>
+        <text x="48" y="34" fill="#e2e8f0">Role-aware workflows</text>
+      </g>
+      <g transform="translate(543,0)">
+        <rect width="267" height="54" rx="27" fill="#111c31" stroke="#a78bfa" stroke-opacity="0.5"/>
+        <circle cx="28" cy="27" r="7" fill="#a78bfa"/>
+        <text x="48" y="34" fill="#e2e8f0">Traceable evidence</text>
+      </g>
+    </g>
+
+    <line x1="4" y1="367" x2="815" y2="367" stroke="#94a3b8" stroke-opacity="0.2"/>
+    <text x="4" y="414" fill="#94a3b8" font-size="18" font-weight="600" letter-spacing="1.5">REACT + TYPESCRIPT  ·  FASTAPI  ·  POSTGRESQL  ·  CELERY  ·  WEBSOCKETS</text>
+  </g>
+
+  <rect x="0" y="588" width="160" height="4" rx="2" fill="url(#accent)">
+    <animate attributeName="x" values="0;1440;0" dur="9s" repeatCount="indefinite"/>
+  </rect>
+</svg>
