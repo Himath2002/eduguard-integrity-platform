@@ -1,0 +1,70 @@
+{
+    "info": {
+      "name": "User Access Management",
+      "_postman_id": "8a5d8d27-7d35-4d8f-9f01-111111111111",
+      "description": "Regression checks for EduGuard auth endpoints",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Login - invalid credentials",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"email\": \"unknown@test.com\",\n  \"password\": \"WrongPassword999!\"\n}"
+          },
+          "url": {
+            "raw": "{{baseUrl}}/auth/login",
+            "host": ["{{baseUrl}}"],
+            "path": ["auth", "login"]
+          }
+        }
+      },
+      {
+        "name": "Signup - missing email",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"username\": \"newuser\",\n  \"full_name\": \"New User\",\n  \"password\": \"Password123!\",\n  \"role\": \"student\"\n}"
+          },
+          "url": {
+            "raw": "{{baseUrl}}/auth/signup",
+            "host": ["{{baseUrl}}"],
+            "path": ["auth", "signup"]
+          }
+        }
+      },
+      {
+        "name": "Change Password - unknown user",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"email\": \"unknown@test.com\",\n  \"current_password\": \"OldPassword123!\",\n  \"new_password\": \"NewPassword123!\"\n}"
+          },
+          "url": {
+            "raw": "{{baseUrl}}/auth/change-password",
+            "host": ["{{baseUrl}}"],
+            "path": ["auth", "change-password"]
+          }
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://127.0.0.1:8000"
+      }
+    ]
+  }

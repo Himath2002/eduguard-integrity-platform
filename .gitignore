@@ -1,0 +1,108 @@
+# -----------------------------
+# OS / editor files
+# -----------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -----------------------------
+# Logs
+# -----------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# -----------------------------
+# Root env files
+# -----------------------------
+.env
+.env.*
+
+# -----------------------------
+# Frontend (Vite / React / TS)
+# -----------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+
+# Vite / TypeScript cache
+frontend/*.tsbuildinfo
+frontend/node_modules/.tmp/
+frontend/.eslintcache
+
+# Frontend env files
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# -----------------------------
+# Backend (Python)
+# -----------------------------
+backend/__pycache__/
+backend/**/*.py[cod]
+backend/*.py[cod]
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/.coverage
+backend/htmlcov/
+backend/.tox/
+backend/.nox/
+backend/site/
+backend/uploads/
+backend/.eggs/
+backend/*.egg-info/
+backend/pip-wheel-metadata/
+
+# Virtual environments
+backend/venv/
+backend/.venv/
+backend/env/
+backend/ENV/
+
+# Backend env files
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# -----------------------------
+# Generic Python ignores
+# -----------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# -----------------------------
+# Test / coverage outputs
+# -----------------------------
+coverage/
+.coverage
+htmlcov/
+pytestdebug.log
+
+# -----------------------------
+# Build / archive files
+# -----------------------------
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# -----------------------------
+# Git / temp / cache
+# -----------------------------
+*.tmp
+*.temp
+.cache/
+.data/

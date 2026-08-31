@@ -1,0 +1,430 @@
+{
+  "info": {
+    "name": "EduGuard Document Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Self-seeding Document Management regression collection for local Newman/Postman runs. It creates temporary lecturer, student, class, and assignment data before testing presign/finalize/download behaviour."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "lecturerIdent",
+      "value": ""
+    },
+    {
+      "key": "studentIdent",
+      "value": ""
+    },
+    {
+      "key": "lecturerEmail",
+      "value": ""
+    },
+    {
+      "key": "studentEmail",
+      "value": ""
+    },
+    {
+      "key": "classCode",
+      "value": ""
+    },
+    {
+      "key": "classId",
+      "value": ""
+    },
+    {
+      "key": "assignmentId",
+      "value": ""
+    },
+    {
+      "key": "bucket",
+      "value": ""
+    },
+    {
+      "key": "key",
+      "value": ""
+    },
+    {
+      "key": "missingSubmissionId",
+      "value": "999999"
+    },
+    {
+      "key": "testPassword",
+      "value": "Password123!"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.info.requestName === '00 - Health check / API availability') {",
+          "  const runId = String(Date.now()).slice(-10);",
+          "  const lecturerIdent = `postlect${runId}`;",
+          "  const studentIdent = `poststud${runId}`;",
+          "  pm.collectionVariables.set('runId', runId);",
+          "  pm.collectionVariables.set('lecturerIdent', lecturerIdent);",
+          "  pm.collectionVariables.set('studentIdent', studentIdent);",
+          "  pm.collectionVariables.set('lecturerEmail', `${lecturerIdent}@example.com`);",
+          "  pm.collectionVariables.set('studentEmail', `${studentIdent}@example.com`);",
+          "  pm.collectionVariables.set('classCode', `POSTDM${runId}`);",
+          "  pm.collectionVariables.set('missingSubmissionId', '999999');",
+          "  pm.collectionVariables.set('testPassword', pm.collectionVariables.get('testPassword') || 'Password123!');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health check / API availability",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('backend health endpoint is available', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Setup lecturer user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/signup",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Lecturer\",\n  \"username\": \"{{lecturerIdent}}\",\n  \"email\": \"{{lecturerEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"lecturer\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('lecturer test user created', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.role).to.eql('lecturer');",
+              "  pm.expect(json.username).to.eql(pm.collectionVariables.get('lecturerIdent'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Setup student user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/signup",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Student\",\n  \"username\": \"{{studentIdent}}\",\n  \"email\": \"{{studentEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"student\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('student test user created', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.role).to.eql('student');",
+              "  pm.expect(json.username).to.eql(pm.collectionVariables.get('studentIdent'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Setup class",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/classes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Document Management Class {{runId}}\",\n  \"code\": \"{{classCode}}\",\n  \"description\": \"Temporary class created by the Document Management Postman collection.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('class created', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.id).to.exist;",
+              "  pm.collectionVariables.set('classId', String(json.id));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Setup student joins class",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/classes/join",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"classCode\": \"{{classCode}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('student joined class', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.id).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Setup assignment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/assignments",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"class_id\": {{classId}},\n  \"title\": \"Postman Upload Assignment {{runId}}\",\n  \"description\": \"Temporary upload assignment created by the Document Management Postman collection.\",\n  \"due_at\": \"2030-12-31T23:59:59.000Z\",\n  \"allow_resubmission\": true,\n  \"max_attempts\": 10,\n  \"student_report_visible\": false\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('assignment created', function () {",
+              "  pm.response.to.have.status(200);",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.ok).to.eql(true);",
+              "  pm.expect(json.id).to.exist;",
+              "  pm.collectionVariables.set('assignmentId', String(json.id));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Presign valid PDF upload",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/presign",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"class_id\": {{classId}},\n  \"assignment_id\": {{assignmentId}},\n  \"filename\": \"essay-1.pdf\",\n  \"content_type\": \"application/pdf\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('presign valid PDF upload returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('presign response contains bucket, key, and upload data', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.bucket).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.key).to.be.a('string').and.not.empty;",
+              "  pm.expect(json.upload).to.exist;",
+              "  pm.expect(json.upload.url).to.be.a('string').and.not.empty;",
+              "  pm.collectionVariables.set('bucket', json.bucket);",
+              "  pm.collectionVariables.set('key', json.key);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Presign rejects non-PDF file type",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/presign",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"class_id\": {{classId}},\n  \"assignment_id\": {{assignmentId}},\n  \"filename\": \"notes.txt\",\n  \"content_type\": \"text/plain\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('non-PDF presign request is rejected', function () {",
+              "  pm.expect([400, 422]).to.include(pm.response.code);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Finalize rejects missing storage upload",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/finalize",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"class_id\": {{classId}},\n  \"assignment_id\": {{assignmentId}},\n  \"filename\": \"essay-1.pdf\",\n  \"content_type\": \"application/pdf\",\n  \"file_size\": 466,\n  \"s3_bucket\": \"{{bucket}}\",\n  \"s3_key\": \"{{key}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('finalize without actual S3 upload is rejected safely', function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "pm.test('finalize explains missing or expired upload', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.detail || '')).to.match(/Upload not found|expired|upload again/i);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Finalize rejects wrong bucket",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/finalize",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"class_id\": {{classId}},\n  \"assignment_id\": {{assignmentId}},\n  \"filename\": \"essay-1.pdf\",\n  \"content_type\": \"application/pdf\",\n  \"file_size\": 466,\n  \"s3_bucket\": \"wrong-bucket\",\n  \"s3_key\": \"{{key}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('wrong bucket is rejected', function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "pm.test('wrong bucket response explains invalid storage location', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.detail || '')).to.match(/Invalid storage location/i);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Download missing student submission file",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{missingSubmissionId}}/file"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('missing submission file returns 404', function () {",
+              "  pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "info": {
+    "name": "EduGuard False Detection and Validation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "False Detection and Validation regression collection. Run tests/test-data/seed_false_detection_fixture.py before this collection so lecturer teach and submission 501 exist."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "lecturerIdent",
+      "value": "teach"
+    },
+    {
+      "key": "submissionId",
+      "value": "501"
+    },
+    {
+      "key": "tamperedSubmissionId",
+      "value": "999999"
+    },
+    {
+      "key": "bearerToken",
+      "value": ""
+    },
+    {
+      "key": "idempotencyKey",
+      "value": ""
+    },
+    {
+      "key": "occurrenceIdOne",
+      "value": ""
+    },
+    {
+      "key": "rangeOneStart",
+      "value": ""
+    },
+    {
+      "key": "rangeOneEnd",
+      "value": ""
+    },
+    {
+      "key": "rangeOneText",
+      "value": ""
+    },
+    {
+      "key": "occurrenceIdTwo",
+      "value": ""
+    },
+    {
+      "key": "rangeTwoStart",
+      "value": ""
+    },
+    {
+      "key": "rangeTwoEnd",
+      "value": ""
+    },
+    {
+      "key": "rangeTwoText",
+      "value": ""
+    },
+    {
+      "key": "validAdjustedPercent",
+      "value": "30"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('idempotencyKey')) {",
+          "  pm.collectionVariables.set('idempotencyKey', `idem-false-detection-${Date.now()}`);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health check / API availability",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('backend health endpoint is available', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Get report text for false-detection review",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{submissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function makeOccurrenceId(match, start, end) {",
+              "  return [",
+              "    match.phrase || '',",
+              "    match.source_type || '',",
+              "    match.source_name || '',",
+              "    match.source_doc_id || '',",
+              "    match.source_chunk_id || ''",
+              "  ].join('::') + `::${start}:${end}`;",
+              "}",
+              "",
+              "function findRange(text, phrase) {",
+              "  const start = String(text).indexOf(String(phrase));",
+              "  if (start < 0) {",
+              "    throw new Error(`Phrase not found in report text: ${phrase}`);",
+              "  }",
+              "  return { start, end: start + String(phrase).length };",
+              "}",
+              "",
+              "pm.test('report text is available', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('report text contains at least two detailed matches', function () {",
+              "  const json = pm.response.json();",
+              "  const text = json.plagiarism_text || json.text || '';",
+              "  const matches = json.detailed_matches || [];",
+              "  pm.expect(matches.length).to.be.at.least(2);",
+              "",
+              "  const first = matches[0];",
+              "  const second = matches[1];",
+              "",
+              "  const firstRange = findRange(text, first.phrase);",
+              "  const secondRange = findRange(text, second.phrase);",
+              "",
+              "  pm.collectionVariables.set('occurrenceIdOne', makeOccurrenceId(first, firstRange.start, firstRange.end));",
+              "  pm.collectionVariables.set('rangeOneStart', String(firstRange.start));",
+              "  pm.collectionVariables.set('rangeOneEnd', String(firstRange.end));",
+              "  pm.collectionVariables.set('rangeOneText', first.phrase);",
+              "",
+              "  pm.collectionVariables.set('occurrenceIdTwo', makeOccurrenceId(second, secondRange.start, secondRange.end));",
+              "  pm.collectionVariables.set('rangeTwoStart', String(secondRange.start));",
+              "  pm.collectionVariables.set('rangeTwoEnd', String(secondRange.end));",
+              "  pm.collectionVariables.set('rangeTwoText', second.phrase);",
+              "",
+              "  const originalPercent = Number(json.original_plagiarism_percent || 60);",
+              "  const adjusted = Math.round(originalPercent * 0.5);",
+              "  pm.collectionVariables.set('validAdjustedPercent', String(adjusted));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Save valid false-detection review",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotencyKey}}",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{submissionId}}/false-detection-review",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"removed_ranges\": [\n    {\n      \"occurrenceId\": \"{{occurrenceIdOne}}\",\n      \"start\": {{rangeOneStart}},\n      \"end\": {{rangeOneEnd}},\n      \"text\": \"{{rangeOneText}}\"\n    }\n  ],\n  \"adjusted_plagiarism_percent\": {{validAdjustedPercent}},\n  \"justification_note\": \"Approved assignment template wording.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('valid review save returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('valid review response contains saved metadata', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.ok).to.eql(true);",
+              "  pm.expect(Number(json.version_no)).to.be.at.least(1);",
+              "  pm.expect(Number(json.adjusted_plagiarism_percent)).to.eql(Number(pm.collectionVariables.get('validAdjustedPercent')));",
+              "  pm.expect(json.idempotency_key).to.eql(pm.collectionVariables.get('idempotencyKey'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Reject override without justification note",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "idem-false-detection-blank-note",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{submissionId}}/false-detection-review",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"removed_ranges\": [\n    {\n      \"occurrenceId\": \"{{occurrenceIdTwo}}\",\n      \"start\": {{rangeTwoStart}},\n      \"end\": {{rangeTwoEnd}},\n      \"text\": \"{{rangeTwoText}}\"\n    }\n  ],\n  \"adjusted_plagiarism_percent\": {{validAdjustedPercent}},\n  \"justification_note\": \"\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('blank justification note is rejected', function () {",
+              "  pm.expect([400, 422]).to.include(pm.response.code);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Reject cross-class / tampered submission access",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "idem-false-detection-cross-class",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{tamperedSubmissionId}}/false-detection-review",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"removed_ranges\": [\n    {\n      \"occurrenceId\": \"{{occurrenceIdTwo}}\",\n      \"start\": {{rangeTwoStart}},\n      \"end\": {{rangeTwoEnd}},\n      \"text\": \"{{rangeTwoText}}\"\n    }\n  ],\n  \"adjusted_plagiarism_percent\": {{validAdjustedPercent}},\n  \"justification_note\": \"Should fail if submission scope is invalid.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('tampered submission access is rejected', function () {",
+              "  pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Replay same Idempotency-Key with changed payload",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotencyKey}}",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{submissionId}}/false-detection-review",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"removed_ranges\": [\n    {\n      \"occurrenceId\": \"{{occurrenceIdTwo}}\",\n      \"start\": {{rangeTwoStart}},\n      \"end\": {{rangeTwoEnd}},\n      \"text\": \"{{rangeTwoText}}\"\n    }\n  ],\n  \"adjusted_plagiarism_percent\": {{validAdjustedPercent}},\n  \"justification_note\": \"Changed payload should fail for the reused idempotency key.\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('changed payload with reused Idempotency-Key is rejected', function () {",
+              "  pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test('response explains idempotency conflict', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.detail || '')).to.match(/Idempotency-Key|different payload|already been used/i);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

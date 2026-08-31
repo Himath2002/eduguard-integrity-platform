@@ -1,0 +1,390 @@
+{
+  "info": {
+    "name": "EduGuard Integration and Communication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Integration and Communication regression collection for EduGuard. It validates backend health, setup users, communication thread APIs, response contracts, malformed request handling, and safe error envelopes."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "lecturerIdent",
+      "value": ""
+    },
+    {
+      "key": "studentIdent",
+      "value": ""
+    },
+    {
+      "key": "lecturerEmail",
+      "value": ""
+    },
+    {
+      "key": "studentEmail",
+      "value": ""
+    },
+    {
+      "key": "testPassword",
+      "value": "Password123!"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.info.requestName === '00 - Health check / API availability') {",
+          "  const runId = String(Date.now()).slice(-10);",
+          "  const lecturerIdent = `iclect${runId}`;",
+          "  const studentIdent = `icstud${runId}`;",
+          "  pm.collectionVariables.set('runId', runId);",
+          "  pm.collectionVariables.set('lecturerIdent', lecturerIdent);",
+          "  pm.collectionVariables.set('studentIdent', studentIdent);",
+          "  pm.collectionVariables.set('lecturerEmail', `${lecturerIdent}@example.com`);",
+          "  pm.collectionVariables.set('studentEmail', `${studentIdent}@example.com`);",
+          "  pm.collectionVariables.set('testPassword', pm.collectionVariables.get('testPassword') || 'Password123!');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health check / API availability",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('backend health endpoint is available', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('health response is JSON object', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Setup lecturer user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/signup",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Integration Communication Lecturer\",\n  \"username\": \"{{lecturerIdent}}\",\n  \"email\": \"{{lecturerEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"lecturer\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('lecturer setup returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('lecturer response has expected role and username', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.username).to.eql(pm.collectionVariables.get('lecturerIdent'));",
+              "  pm.expect(json.role).to.eql('lecturer');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Setup student user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/signup",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Integration Communication Student\",\n  \"username\": \"{{studentIdent}}\",\n  \"email\": \"{{studentEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"student\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('student setup returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('student response has expected role and username', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.username).to.eql(pm.collectionVariables.get('studentIdent'));",
+              "  pm.expect(json.role).to.eql('student');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Lecturer communication threads list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/communications/lecturer/{{lecturerIdent}}/threads"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('lecturer communication threads endpoint returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('lecturer communication threads response is an array', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Student communication threads list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/communications/student/{{studentIdent}}/threads"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('student communication threads endpoint returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('student communication threads response is an array', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Missing lecturer thread returns safe error",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/communications/lecturer/{{lecturerIdent}}/threads/999999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('missing communication thread is rejected safely', function () {",
+              "  pm.expect([404, 405, 422]).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test('missing thread response contains a safe error body', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Missing student thread returns safe error",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/communications/student/{{studentIdent}}/threads/999999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('missing student communication thread is rejected safely', function () {",
+              "  pm.expect([404, 405, 422]).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test('missing student thread response contains a safe error body', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Invalid communication role is rejected safely",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/communications/invalid-role/{{lecturerIdent}}/threads"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('invalid communication role is rejected', function () {",
+              "  pm.expect([404, 405, 422]).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test('invalid role response has detail field', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Malformed signup JSON returns validation error",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/signup",
+        "body": {
+          "mode": "raw",
+          "raw": "{ invalid json"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('malformed JSON is rejected with validation status', function () {",
+              "  pm.expect([400, 422]).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test('malformed JSON response has detail field', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Empty communication message to missing thread is rejected safely",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/communications/lecturer/{{lecturerIdent}}/threads/999999/messages",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"body\": \"\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('empty message to missing thread is rejected safely', function () {",
+              "  pm.expect([400, 404, 405, 422]).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test('empty message response has safe error envelope', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Unknown API route returns standard error envelope",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/integration-communication/unknown-route-for-postman"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('unknown route returns 404', function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test('unknown route response has detail field', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

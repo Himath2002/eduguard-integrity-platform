@@ -1,0 +1,906 @@
+{
+  "info": {
+    "_postman_id": "233c8131-d0bf-45db-92c2-f02da173ce40",
+    "name": "EduGuard Analytics and Reporting",
+    "description": "Newman/Postman regression collection for analytics dashboard summaries and reporting endpoints. Updated to fail fast when DB-backed endpoints return 503, preventing cascading assertion failures.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.info.requestName === '00 - Health check / API availability') {",
+          "  const existingRunId = pm.variables.get('runId');",
+          "  const runId = existingRunId && String(existingRunId).trim() ? String(existingRunId).trim() : String(Date.now()).slice(-10);",
+          "  const lecturerIdent = pm.variables.get('lecturerIdent') || `arlect${runId}`;",
+          "  const studentIdent = pm.variables.get('studentIdent') || `arstud${runId}`;",
+          "  pm.collectionVariables.set('runId', runId);",
+          "  pm.collectionVariables.set('lecturerIdent', lecturerIdent);",
+          "  pm.collectionVariables.set('studentIdent', studentIdent);",
+          "  pm.collectionVariables.set('lecturerEmail', pm.variables.get('lecturerEmail') || `${lecturerIdent}@example.com`);",
+          "  pm.collectionVariables.set('studentEmail', pm.variables.get('studentEmail') || `${studentIdent}@example.com`);",
+          "  pm.collectionVariables.set('classCode', pm.variables.get('classCode') || `POSTAR${runId}`);",
+          "  pm.collectionVariables.set('classId', pm.variables.get('classId') || '');",
+          "  pm.collectionVariables.set('assignmentId', pm.variables.get('assignmentId') || '');",
+          "  pm.collectionVariables.set('missingSubmissionId', pm.variables.get('missingSubmissionId') || '999999');",
+          "  pm.collectionVariables.set('testPassword', pm.variables.get('testPassword') || 'Password123!');",
+          "  pm.collectionVariables.set('dbReady', pm.variables.get('dbReady') || 'unknown');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "lecturerIdent",
+      "value": ""
+    },
+    {
+      "key": "studentIdent",
+      "value": ""
+    },
+    {
+      "key": "lecturerEmail",
+      "value": ""
+    },
+    {
+      "key": "studentEmail",
+      "value": ""
+    },
+    {
+      "key": "classCode",
+      "value": ""
+    },
+    {
+      "key": "classId",
+      "value": ""
+    },
+    {
+      "key": "assignmentId",
+      "value": ""
+    },
+    {
+      "key": "missingSubmissionId",
+      "value": "999999"
+    },
+    {
+      "key": "testPassword",
+      "value": "Password123!"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health check / API availability",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('backend health endpoint is available', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('health response is a JSON object', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "00.1 - Database readiness check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/admin/dashboard/summary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "const json = readJson();",
+              "",
+              "if (pm.response.code === 503) {",
+              "  pm.collectionVariables.set('dbReady', 'false');",
+              "  pm.test('database unavailable - DB-backed regression requests skipped', function () {",
+              "    pm.expect(pm.response.code).to.eql(503);",
+              "    pm.expect(String(json.detail || '')).to.match(/Database connection is unavailable|database/i);",
+              "  });",
+              "  console.warn('Skipping Analytics and Reporting DB-backed regression tests because the backend returned 503. Start PostgreSQL/SSH tunnel and rerun for full regression coverage.');",
+              "  pm.execution.setNextRequest(null);",
+              "} else {",
+              "  pm.collectionVariables.set('dbReady', 'true');",
+              "  pm.test('database is available for regression tests', function () {",
+              "    pm.response.to.have.status(200);",
+              "  });",
+              "  pm.test('database readiness response is JSON object', function () {",
+              "    pm.expect(json).to.be.an('object');",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Setup lecturer user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/signup",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Analytics Lecturer\",\n  \"username\": \"{{lecturerIdent}}\",\n  \"email\": \"{{lecturerEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"lecturer\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('lecturer test user created', function () { pm.response.to.have.status(200); });",
+              "  stopBecause('Stopping collection: lecturer setup failed. ' + (json.detail || pm.response.text()));",
+              "} else {",
+              "  pm.test('lecturer test user created', function () {",
+              "    pm.expect(json.role).to.eql('lecturer');",
+              "    pm.expect(json.username).to.eql(pm.collectionVariables.get('lecturerIdent'));",
+              "    pm.expect(json.userId).to.exist;",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Setup student user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/auth/signup",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"full_name\": \"Postman Analytics Student\",\n  \"username\": \"{{studentIdent}}\",\n  \"email\": \"{{studentEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"student\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('student test user created', function () { pm.response.to.have.status(200); });",
+              "  stopBecause('Stopping collection: student setup failed. ' + (json.detail || pm.response.text()));",
+              "} else {",
+              "  pm.test('student test user created', function () {",
+              "    pm.expect(json.role).to.eql('student');",
+              "    pm.expect(json.username).to.eql(pm.collectionVariables.get('studentIdent'));",
+              "    pm.expect(json.userId).to.exist;",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Setup analytics class",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/classes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Analytics Reporting Class {{runId}}\",\n  \"code\": \"{{classCode}}\",\n  \"description\": \"Temporary class created by Analytics and Reporting Postman regression collection.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('analytics class created', function () { pm.response.to.have.status(200); });",
+              "  stopBecause('Stopping collection: class setup failed. ' + (json.detail || pm.response.text()));",
+              "} else {",
+              "  pm.test('analytics class created', function () {",
+              "    pm.expect(json.id).to.exist;",
+              "    pm.expect(json.code).to.eql(pm.collectionVariables.get('classCode'));",
+              "    pm.collectionVariables.set('classId', String(json.id));",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Setup student joins analytics class",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/classes/join",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"classCode\": \"{{classCode}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('student joined analytics class', function () { pm.response.to.have.status(200); });",
+              "  stopBecause('Stopping collection: student class join failed. ' + (json.detail || pm.response.text()));",
+              "} else {",
+              "  pm.test('student joined analytics class', function () {",
+              "    pm.expect(json.id).to.exist;",
+              "    pm.expect(json.code).to.eql(pm.collectionVariables.get('classCode'));",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Setup analytics assignment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/assignments",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"class_id\": {{classId}},\n  \"title\": \"Postman Analytics Assignment {{runId}}\",\n  \"description\": \"Temporary assignment created by Analytics and Reporting Postman regression collection.\",\n  \"due_at\": \"2030-12-31T23:59:59.000Z\",\n  \"allow_resubmission\": true,\n  \"max_attempts\": 10,\n  \"student_report_visible\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('analytics assignment created', function () { pm.response.to.have.status(200); });",
+              "  stopBecause('Stopping collection: assignment setup failed. classId=' + pm.collectionVariables.get('classId') + ' detail=' + (json.detail || pm.response.text()));",
+              "} else {",
+              "  pm.test('analytics assignment created', function () {",
+              "    pm.expect(json.ok).to.eql(true);",
+              "    pm.expect(json.id).to.exist;",
+              "    pm.collectionVariables.set('assignmentId', String(json.id));",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Admin analytics dashboard summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/admin/dashboard/summary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('admin dashboard summary returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('admin dashboard summary returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('admin dashboard summary has analytics counters', function () {",
+              "    pm.expect(json).to.be.an('object');",
+              "    pm.expect(Number(json.instructors)).to.be.at.least(1);",
+              "    pm.expect(Number(json.students)).to.be.at.least(1);",
+              "    pm.expect(Number(json.pending_submissions)).to.be.at.least(0);",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Lecturer analytics dashboard summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/dashboard/summary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('lecturer dashboard summary returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('lecturer dashboard summary returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('lecturer dashboard summary includes class and assignment analytics', function () {",
+              "    const classCode = pm.collectionVariables.get('classCode');",
+              "    pm.expect(json).to.be.an('object');",
+              "    pm.expect(json.stats).to.be.an('object');",
+              "    pm.expect(Number(json.stats.activeClasses)).to.be.at.least(1);",
+              "    pm.expect(json.classes).to.be.an('array');",
+              "    pm.expect(json.classes.some(function (c) { return c.code === classCode; })).to.eql(true);",
+              "    pm.expect(json.upcoming).to.be.an('array');",
+              "    pm.expect(json.upcoming.some(function (a) { return a.classCode === classCode; })).to.eql(true);",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Student analytics dashboard summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/dashboard/summary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('student dashboard summary returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('student dashboard summary returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('student dashboard summary includes joined class analytics', function () {",
+              "    const classCode = pm.collectionVariables.get('classCode');",
+              "    pm.expect(json).to.be.an('object');",
+              "    pm.expect(json.stats).to.be.an('object');",
+              "    pm.expect(Number(json.stats.joined_classes)).to.be.at.least(1);",
+              "    pm.expect(json.classes).to.be.an('array');",
+              "    pm.expect(json.classes.some(function (c) { return c.code === classCode; })).to.eql(true);",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Admin institution reports list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/admin/reports?class_code={{classCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('admin reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('admin reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('admin reports list is an array scoped by class code', function () {",
+              "    const classCode = pm.collectionVariables.get('classCode');",
+              "    pm.expect(json).to.be.an('array');",
+              "    json.forEach(function (row) {",
+              "      pm.expect(row.class_code).to.eql(classCode);",
+              "      pm.expect(row).to.have.property('submission_id');",
+              "      pm.expect(row).to.have.property('assignment_title');",
+              "      pm.expect(row).to.have.property('plagiarism_percent');",
+              "      pm.expect(row).to.have.property('ai_risk_percent');",
+              "    });",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Admin reports search filter",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/admin/reports?q={{studentIdent}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('admin reports search returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('admin reports search returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('admin reports search returns an array', function () { pm.expect(json).to.be.an('array'); });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Lecturer reports list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/reports?class_code={{classCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('lecturer reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('lecturer reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('lecturer reports list is an array scoped by class code', function () {",
+              "    const classCode = pm.collectionVariables.get('classCode');",
+              "    pm.expect(json).to.be.an('array');",
+              "    json.forEach(function (row) {",
+              "      pm.expect(row.class_code).to.eql(classCode);",
+              "      pm.expect(row).to.have.property('submission_id');",
+              "      pm.expect(row).to.have.property('assignment_title');",
+              "      pm.expect(row).to.have.property('plagiarism_percent');",
+              "      pm.expect(row).to.have.property('ai_risk_percent');",
+              "    });",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Student integrity reports list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/reports?class_code={{classCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('student integrity reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('student integrity reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('student integrity reports list is an array scoped by class code', function () {",
+              "    const classCode = pm.collectionVariables.get('classCode');",
+              "    pm.expect(json).to.be.an('array');",
+              "    json.forEach(function (row) {",
+              "      pm.expect(row.class_code).to.eql(classCode);",
+              "      pm.expect(row).to.have.property('submission_id');",
+              "      pm.expect(row).to.have.property('assignment_title');",
+              "      pm.expect(row).to.have.property('plagiarism_percent');",
+              "      pm.expect(row).to.have.property('ai_risk_percent');",
+              "    });",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Student marked reports list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/marked-reports?class_code={{classCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "if (pm.response.code !== 200) {",
+              "  pm.test('student marked reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "} else {",
+              "  pm.test('student marked reports list returns 200', function () { pm.response.to.have.status(200); });",
+              "  pm.test('student marked reports list is an array scoped by class code', function () {",
+              "    const classCode = pm.collectionVariables.get('classCode');",
+              "    pm.expect(json).to.be.an('array');",
+              "    json.forEach(function (row) {",
+              "      pm.expect(row.class_code).to.eql(classCode);",
+              "      pm.expect(row).to.have.property('submission_id');",
+              "      pm.expect(row).to.have.property('assignment_title');",
+              "      pm.expect(row).to.have.property('score');",
+              "      pm.expect(row).to.have.property('max_score');",
+              "    });",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Admin report-text rejects missing submission",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/admin/submissions/{{missingSubmissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "pm.test('admin missing report text returns expected error', function () {",
+              "  pm.expect([404, 403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('admin missing report text has useful error detail', function () {",
+              "  pm.expect(json.detail).to.match(/Submission not found|not found/i);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Lecturer report-text rejects missing submission",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{missingSubmissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "pm.test('lecturer missing report text returns expected error', function () {",
+              "  pm.expect([404, 403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('lecturer missing report text has useful error detail', function () {",
+              "  pm.expect(json.detail).to.match(/Submission file not found|Submission not found|not found/i);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - Student report-text rejects missing submission",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{missingSubmissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "pm.test('student missing integrity report text returns expected error', function () {",
+              "  pm.expect([404, 403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('student missing integrity report text has useful error detail', function () {",
+              "  pm.expect(json.detail).to.match(/Submission report not found|Submission not found|not found/i);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - Student marked-report rejects missing submission",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{missingSubmissionId}}/marked-report"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "pm.test('student missing marked report returns expected error', function () {",
+              "  pm.expect([404, 403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('student missing marked report has useful error detail', function () {",
+              "  pm.expect(json.detail).to.match(/Marked report not found|Submission not found|not found/i);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 - Unknown lecturer reports are rejected",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/lecturer/unknown-analytics-user/reports"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "pm.test('unknown lecturer reports request is rejected', function () {",
+              "  pm.expect([404, 403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('unknown lecturer rejection has JSON error detail', function () {",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 - Unknown student reports are rejected",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/student/unknown-analytics-user/reports"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function readJson() {",
+              "  try { return pm.response.json(); } catch (e) { return {}; }",
+              "}",
+              "function stopBecause(message) {",
+              "  console.error(message);",
+              "  postman.setNextRequest(null);",
+              "}",
+              "const json = readJson();",
+              "pm.test('unknown student reports request is rejected', function () {",
+              "  pm.expect([404, 403]).to.include(pm.response.code);",
+              "});",
+              "pm.test('unknown student rejection has JSON error detail', function () {",
+              "  pm.expect(json.detail).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

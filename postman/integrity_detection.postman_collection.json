@@ -1,0 +1,300 @@
+{
+  "info": {
+    "name": "EduGuard - Integrity Detection Engine Step 3 Regression",
+    "description": "Final API regression coverage for the Integrity Detection Engine: student, lecturer and admin report lists, report-text contracts, highlighted PDF downloads, detailed plagiarism PDFs, integrity job polling and controlled error behavior.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "studentIdent",
+      "value": "60"
+    },
+    {
+      "key": "lecturerIdent",
+      "value": "lecturer1"
+    },
+    {
+      "key": "submissionId",
+      "value": "77"
+    },
+    {
+      "key": "missingSubmissionId",
+      "value": "999999"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('backend is reachable', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student integrity reports list is lightweight",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/student/{{studentIdent}}/reports"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', () => pm.response.to.have.status(200));",
+              "const rows = pm.response.json();",
+              "pm.test('array response', () => pm.expect(rows).to.be.an('array'));",
+              "pm.test('summary rows do not embed full report text', () => { if (rows.length) { pm.expect(rows[0]).to.not.have.property('text'); pm.expect(rows[0]).to.have.property('submission_id'); } });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student report text includes preview evidence contract",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{submissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('controlled status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) { const body = pm.response.json(); pm.test('has extracted text', () => pm.expect(body.text).to.be.a('string')); pm.test('has plagiarism phrase array', () => pm.expect(body.plagiarised_phrases).to.be.an('array')); pm.test('has AI span array', () => pm.expect(body.ai_spans).to.be.an('array')); pm.test('AI spans have valid shape when present', () => { for (const span of body.ai_spans) { pm.expect(span).to.have.property('start'); pm.expect(span).to.have.property('end'); pm.expect(span.end).to.be.at.least(span.start); } }); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student plagiarism highlighted PDF is controlled",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{submissionId}}/integrity-highlighted-pdf?mode=plagiarism"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('valid status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) pm.test('PDF content type', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student AI highlighted PDF is controlled",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{submissionId}}/integrity-highlighted-pdf?mode=ai"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('valid status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) pm.test('PDF content type', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lecturer integrity reports list is lightweight",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/reports"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', () => pm.response.to.have.status(200));",
+              "const rows = pm.response.json();",
+              "pm.test('array response', () => pm.expect(rows).to.be.an('array'));",
+              "pm.test('summary rows expose ready state without full text', () => { if (rows.length) { pm.expect(rows[0]).to.have.property('submission_id'); pm.expect(rows[0]).to.not.have.property('text'); } });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lecturer report text includes detailed source arrays",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{submissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('controlled status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) { const body = pm.response.json(); pm.test('detailed matches array exists', () => pm.expect(body.detailed_matches).to.be.an('array')); pm.test('source phrase arrays exist', () => { pm.expect(body.lecture_phrases).to.be.an('array'); pm.expect(body.submission_phrases).to.be.an('array'); pm.expect(body.online_phrases).to.be.an('array'); }); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lecturer plagiarism highlighted PDF is controlled",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{submissionId}}/integrity-highlighted-pdf?mode=plagiarism"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('valid status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) pm.test('PDF content type', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lecturer detailed plagiarism PDF is controlled",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lecturer/{{lecturerIdent}}/submissions/{{submissionId}}/integrity-detailed-pdf"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('valid status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) pm.test('PDF content type', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin report text endpoint is controlled",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/admin/submissions/{{submissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('controlled status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) { const body = pm.response.json(); pm.test('admin report has text and evidence arrays', () => { pm.expect(body.text).to.be.a('string'); pm.expect(body.plagiarised_phrases).to.be.an('array'); pm.expect(body.ai_spans).to.be.an('array'); }); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin AI highlighted PDF is controlled",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/admin/submissions/{{submissionId}}/integrity-highlighted-pdf?mode=ai"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('valid status', () => pm.expect([200,404,409]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) pm.test('PDF content type', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Integrity job polling has stable shape",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/integrity/jobs/{{submissionId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200 or controlled missing', () => pm.expect([200,404]).to.include(pm.response.code));",
+              "if (pm.response.code === 200) { const jobs = pm.response.json(); pm.test('jobs array', () => pm.expect(jobs).to.be.an('array')); if (jobs.length) pm.test('job contract', () => { pm.expect(jobs[0]).to.have.property('status'); pm.expect(jobs[0]).to.have.property('progress'); pm.expect(jobs[0]).to.have.property('error'); }); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid report mode never raw-crashes",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{submissionId}}/integrity-highlighted-pdf?mode=wrong"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('server does not raw crash', () => pm.expect(pm.response.code).to.not.eql(500));",
+              "pm.test('invalid mode is rejected or controlled', () => pm.expect([400,404,409,422]).to.include(pm.response.code));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing submission report text is controlled",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/student/{{studentIdent}}/submissions/{{missingSubmissionId}}/report-text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('missing report does not raw crash', () => pm.expect(pm.response.code).to.not.eql(500));",
+              "pm.test('missing report uses controlled status', () => pm.expect([404,409]).to.include(pm.response.code));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
