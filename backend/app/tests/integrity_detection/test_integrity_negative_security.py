@@ -10,7 +10,7 @@ from app.services import integrity_report_service as reports
 @pytest.mark.parametrize("submission_id", [0, -20])
 def test_submission_id_must_be_positive_for_integrity_analysis(submission_id: int) -> None:
     with pytest.raises(ValidationError):
-        IntegrityAnalyzeRequest(submission_id=submission_id, local_path="file.pdf")
+        IntegrityAnalyzeRequest(submission_id=submission_id)
 
 
 def test_integrity_job_response_rejects_unknown_status() -> None:

@@ -20,16 +20,10 @@ def _user_error(error: str | None) -> str | None:
 
 @router.post("/analyze", response_model=IntegrityJobOut)
 def analyze(payload: IntegrityAnalyzeRequest, db: Session = Depends(get_db)):
-    if not payload.local_path and not (payload.s3_bucket and payload.s3_key):
-        raise HTTPException(status_code=400, detail="Provide local_path or s3_bucket+s3_key")
-
     job, _ = run_plagiarism_for_submission(
         db,
         payload.submission_id,
         idempotency_key=payload.idempotency_key,
-        local_path=payload.local_path,
-        s3_bucket=payload.s3_bucket,
-        s3_key=payload.s3_key,
         correlation_id=payload.correlation_id,
     )
 

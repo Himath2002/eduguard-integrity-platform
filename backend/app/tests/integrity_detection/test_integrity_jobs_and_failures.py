@@ -38,26 +38,26 @@ class _FakeDB:
         return _FakeQuery(rows=self.jobs)
 
 
-def test_integrity_analyze_request_accepts_local_path() -> None:
-    payload = IntegrityAnalyzeRequest(submission_id=10, local_path="/tmp/submission.pdf", idempotency_key="idem-1")
+def test_integrity_analyze_request_uses_server_managed_submission_source() -> None:
+    payload = IntegrityAnalyzeRequest(submission_id=10, idempotency_key="idem-1")
 
     assert payload.submission_id == 10
-    assert payload.local_path == "/tmp/submission.pdf"
     assert payload.idempotency_key == "idem-1"
 
 
-def test_integrity_analyze_request_accepts_s3_location() -> None:
-    payload = IntegrityAnalyzeRequest(submission_id=10, s3_bucket="bucket", s3_key="submissions/file.pdf")
-
-    assert payload.s3_bucket == "bucket"
-    assert payload.s3_key == "submissions/file.pdf"
-    assert payload.idempotency_key == "default"
+def test_integrity_analyze_request_rejects_client_file_locations() -> None:
+    with pytest.raises(ValidationError):
+        IntegrityAnalyzeRequest(
+            submission_id=10,
+            local_path="/tmp/untrusted.pdf",  # type: ignore[call-arg]
+            s3_bucket="untrusted-bucket",  # type: ignore[call-arg]
+            s3_key="untrusted.pdf",  # type: ignore[call-arg]
+        )
 
 
 def test_integrity_analyze_request_keeps_correlation_id_for_traceability() -> None:
     payload = IntegrityAnalyzeRequest(
         submission_id=10,
-        local_path="/tmp/submission.pdf",
         idempotency_key="idem-2",
         correlation_id="upload-abc",
     )
@@ -65,15 +65,17 @@ def test_integrity_analyze_request_keeps_correlation_id_for_traceability() -> No
     assert payload.correlation_id == "upload-abc"
 
 
-def test_integrity_analyze_request_requires_a_file_location() -> None:
-    with pytest.raises(ValidationError):
-        IntegrityAnalyzeRequest(submission_id=10)
+def test_integrity_analyze_request_defaults_to_submission_record_source() -> None:
+    payload = IntegrityAnalyzeRequest(submission_id=10)
+
+    assert payload.submission_id == 10
+    assert payload.idempotency_key == "default"
 
 
 @pytest.mark.parametrize("bad_submission_id", [0, -1])
 def test_integrity_analyze_request_requires_positive_submission_id(bad_submission_id: int) -> None:
     with pytest.raises(ValidationError):
-        IntegrityAnalyzeRequest(submission_id=bad_submission_id, local_path="file.pdf")
+        IntegrityAnalyzeRequest(submission_id=bad_submission_id)
 
 
 def test_integrity_job_out_contract_accepts_all_expected_statuses() -> None:
@@ -135,7 +137,7 @@ def test_analyze_endpoint_returns_safe_job_contract(monkeypatch: pytest.MonkeyPa
     monkeypatch.setattr("app.api.integrity.run_plagiarism_for_submission", fake_run)
 
     response = analyze(
-        IntegrityAnalyzeRequest(submission_id=77, local_path="/tmp/file.pdf", idempotency_key="idem-77", correlation_id="corr-77"),
+        IntegrityAnalyzeRequest(submission_id=77, idempotency_key="idem-77", correlation_id="corr-77"),
         db=object(),
     )
 
