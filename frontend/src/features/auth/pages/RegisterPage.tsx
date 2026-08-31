@@ -170,9 +170,12 @@ export default function RegisterPage() {
     },
     onSuccess: (data, variables) => {
       if (data.mfa_required) {
-        sessionStorage.setItem("mfa_ticket", data.ticket);
-        sessionStorage.setItem("mfa_email", variables.email.trim());
-        nav("/login/mfa");
+        nav("/login/mfa", {
+          state: {
+            ticket: data.ticket,
+            email: variables.email.trim(),
+          },
+        });
         return;
       }
 

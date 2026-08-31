@@ -271,7 +271,7 @@ function AiBadge({ r }: { r: AdminReportRow }) {
 
 
 function normChar(ch: string) {
-  const c = ch.normalize("NFKC").replace(/ /g, " ");
+  const c = ch.normalize("NFKC");
   if (/[a-zA-Z0-9]/.test(c)) return c.toLowerCase();
   if (/\s/.test(c)) return " ";
   return " ";

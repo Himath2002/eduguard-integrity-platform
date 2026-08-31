@@ -1,0 +1,6 @@
+name: EduGuard CodeQL configuration
+
+# k6 workload generators deliberately use non-cryptographic randomness only to
+# vary synthetic test identifiers. They are not shipped with the application.
+paths-ignore:
+  - tests/performance/**

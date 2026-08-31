@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { completeGoogleSignup, type GoogleCompleteResp } from "@/features/auth/api/auth.api";
 import { setSession } from "@/app/store/authSlice";
@@ -18,13 +18,18 @@ function routeForRole(role: Role | "admin") {
 export default function GoogleCompletePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const routeState = location.state as {
+    signupToken?: string;
+    email?: string;
+    name?: string;
+    suggestedUsername?: string;
+  } | null;
 
-  const [token] = useState(() => sessionStorage.getItem("google_signup_token") || "");
-  const [email] = useState(() => sessionStorage.getItem("google_email") || "");
-  const [name] = useState(() => sessionStorage.getItem("google_name") || "");
-  const [suggestedUsername] = useState(
-    () => sessionStorage.getItem("google_suggested_username") || ""
-  );
+  const [token] = useState(() => routeState?.signupToken || "");
+  const [email] = useState(() => routeState?.email || "");
+  const [name] = useState(() => routeState?.name || "");
+  const [suggestedUsername] = useState(() => routeState?.suggestedUsername || "");
 
   const [username, setUsername] = useState("");
   const [role, setRole] = useState<Role>("student");
@@ -76,11 +81,6 @@ export default function GoogleCompletePage() {
           email: data.email || email || undefined,
         })
       );
-
-      sessionStorage.removeItem("google_signup_token");
-      sessionStorage.removeItem("google_email");
-      sessionStorage.removeItem("google_name");
-      sessionStorage.removeItem("google_suggested_username");
 
       navigate(routeForRole(data.role), { replace: true });
     } catch (e: any) {

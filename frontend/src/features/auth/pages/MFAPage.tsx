@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { setSession } from "@/app/store/authSlice";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Role = "student" | "lecturer" | "admin";
 const schema = z.object({ code: z.string().length(6, "Enter the 6-digit code") });
@@ -27,8 +27,10 @@ export default function MFAPage() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const ticket = sessionStorage.getItem("mfa_ticket") || "";
-  const mfaEmail = sessionStorage.getItem("mfa_email") || undefined;
+  const location = useLocation();
+  const routeState = location.state as { ticket?: string; email?: string } | null;
+  const ticket = routeState?.ticket || "";
+  const mfaEmail = routeState?.email;
 
   useEffect(() => {
     if (!ticket) navigate("/login", { replace: true });
@@ -41,9 +43,6 @@ export default function MFAPage() {
         body: { ...body, ticket },
       }),
     onSuccess: (d) => {
-      if (mfaEmail) {
-        localStorage.setItem("eduguard.name", mfaEmail.split("@")[0] || "User");
-      }
       dispatch(
         setSession({
           userId: d.userId,
@@ -51,8 +50,6 @@ export default function MFAPage() {
           email: mfaEmail,
         })
       );
-      sessionStorage.removeItem("mfa_ticket");
-      sessionStorage.removeItem("mfa_email");
       navigate(routeFor(d.role));
     },
   });

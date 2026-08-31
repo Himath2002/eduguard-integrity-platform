@@ -1,8 +1,10 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import LogoutButton from "@/shared/components/LogoutButton";
 import AdminTopNav from "@/features/admin/components/AdminTopNav";
 import { AdminThemeProvider, useAdminTheme } from "@/shared/theme/adminTheme";
+import type { RootState } from "@/app/store";
 
 const ADMIN_TABS = [
   "/admin/dashboard",
@@ -162,6 +164,7 @@ function AdminLayoutInner() {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useAdminTheme();
+  const auth = useSelector((state: RootState) => state.auth);
 
   const [enter, setEnter] = useState<"left" | "right" | "fade">("fade");
   const prevIdxRef = useRef<number | null>(null);
@@ -188,10 +191,7 @@ function AdminLayoutInner() {
       : "admin-enter-fade";
 
   const displayName =
-    localStorage.getItem("username") ||
-    localStorage.getItem("email") ||
-    localStorage.getItem("userId") ||
-    "Admin";
+    auth.name || auth.username || auth.email?.split("@")[0] || auth.userId || "Admin";
 
   return (
     <div className="admin-shell-only min-h-screen transition-[background,color] duration-300" data-admin-theme={theme}>

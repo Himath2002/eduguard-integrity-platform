@@ -181,6 +181,33 @@ describe("LoginPage", () => {
     expect(await screen.findByText("Invalid credentials")).toBeInTheDocument();
   });
 
+  test("passes a short-lived MFA challenge through route state", async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(loginWithEmailPassword).mockResolvedValue({
+      mfa_required: true,
+      ticket: "mfa-ticket-123",
+    });
+
+    render(<LoginPage />);
+
+    await user.type(screen.getByLabelText(/email/i), "student@test.com");
+    await user.type(screen.getByLabelText(/password/i), "Password123!");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith("/login/mfa", {
+        replace: true,
+        state: {
+          ticket: "mfa-ticket-123",
+          email: "student@test.com",
+        },
+      });
+    });
+
+    expect(window.sessionStorage.getItem("mfa_ticket")).toBeNull();
+  });
+
   test("navigates to google completion flow when google response needs completion", async () => {
     const user = userEvent.setup();
 
@@ -201,13 +228,14 @@ describe("LoginPage", () => {
       expect(loginWithGoogleCredential).toHaveBeenCalledWith("google-test-token");
     });
 
-    expect(window.sessionStorage.getItem("google_signup_token")).toBe("signup-token-123");
-    expect(window.sessionStorage.getItem("google_email")).toBe("googleuser@test.com");
-    expect(window.sessionStorage.getItem("google_name")).toBe("Google User");
-    expect(window.sessionStorage.getItem("google_suggested_username")).toBe("googleuser");
-
     expect(mockNavigate).toHaveBeenCalledWith("/google/complete", {
       replace: true,
+      state: {
+        signupToken: "signup-token-123",
+        email: "googleuser@test.com",
+        name: "Google User",
+        suggestedUsername: "googleuser",
+      },
     });
   });
 

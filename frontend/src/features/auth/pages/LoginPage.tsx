@@ -101,9 +101,13 @@ export default function LoginPage() {
     fallbackEmail?: string
   ) {
     if (res?.mfa_required && "ticket" in res && res.ticket) {
-      sessionStorage.setItem("mfa_ticket", res.ticket);
-      sessionStorage.setItem("mfa_email", (fallbackEmail || email).trim());
-      nav("/login/mfa", { replace: true });
+      nav("/login/mfa", {
+        replace: true,
+        state: {
+          ticket: res.ticket,
+          email: (fallbackEmail || email).trim(),
+        },
+      });
       return;
     }
 
@@ -156,11 +160,15 @@ export default function LoginPage() {
       const res = await loginWithGoogleCredential(response.credential);
 
       if (isCompletionResponse(res)) {
-        sessionStorage.setItem("google_signup_token", res.signup_token);
-        sessionStorage.setItem("google_email", res.email);
-        sessionStorage.setItem("google_name", res.name || "");
-        sessionStorage.setItem("google_suggested_username", res.suggested_username || "");
-        nav("/google/complete", { replace: true });
+        nav("/google/complete", {
+          replace: true,
+          state: {
+            signupToken: res.signup_token,
+            email: res.email,
+            name: res.name || "",
+            suggestedUsername: res.suggested_username || "",
+          },
+        });
         return;
       }
 

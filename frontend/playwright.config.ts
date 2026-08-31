@@ -26,6 +26,7 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120_000,
     env: {
+      VITE_E2E_SESSION: "true",
       VITE_GOOGLE_CLIENT_ID: "eduguard-playwright-test-client",
     },
   },

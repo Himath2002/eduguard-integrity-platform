@@ -170,12 +170,10 @@ export default function AppLayout() {
   };
 
   const displayName: string = useMemo(() => {
-    const stored = localStorage.getItem("eduguard.name");
     const fromSlice =
       auth?.name ||
       auth?.username ||
       (auth?.email && String(auth.email).split("@")[0]) ||
-      stored ||
       auth?.userId;
 
     const raw = String(fromSlice || "User");
@@ -229,7 +227,6 @@ export default function AppLayout() {
 
   const onLogout = () => {
     dispatch(clearSession());
-    localStorage.removeItem("eduguard.name");
     navigate("/login", { replace: true });
   };
 

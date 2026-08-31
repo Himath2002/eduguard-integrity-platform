@@ -758,12 +758,10 @@ export default function LecturerDashboard() {
   };
 
   const displayName: string = (() => {
-    const stored = localStorage.getItem("eduguard.name");
     const fromSlice =
       auth?.name ||
       auth?.username ||
       (auth?.email && String(auth.email).split("@")[0]) ||
-      stored ||
       auth?.userId;
     const raw = String(fromSlice || "Smith");
     const base = raw.includes("@") ? raw.split("@")[0] : raw;

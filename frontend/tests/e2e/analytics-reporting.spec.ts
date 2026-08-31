@@ -14,12 +14,8 @@ type SeedSession = {
 
 async function seedSession(page: Page, session: SeedSession) {
   await page.addInitScript((value: SeedSession) => {
-    localStorage.setItem("eduguard.session", JSON.stringify(value));
-    localStorage.setItem("eduguard.name", value.name);
-    localStorage.setItem("userId", value.userId);
-    localStorage.setItem("username", value.username);
-    localStorage.setItem("email", value.email);
-    localStorage.setItem("role", value.role);
+    (window as Window & { __EDUGUARD_E2E_SESSION__?: SeedSession })
+      .__EDUGUARD_E2E_SESSION__ = value;
   }, session);
 }
 

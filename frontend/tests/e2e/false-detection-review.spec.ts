@@ -25,12 +25,13 @@ const reportsFixture = [{ submission_id: 501, assignment_title: "Essay 1", class
 
 async function seedLecturerSession(page: Page) {
   await page.addInitScript(() => {
-    localStorage.setItem("eduguard.session", JSON.stringify({ userId: "teach", role: "lecturer", username: "teach", email: "teach@example.com", name: "Dr Smith" }));
-    localStorage.setItem("eduguard.name", "Dr Smith");
-    localStorage.setItem("userId", "teach");
-    localStorage.setItem("username", "teach");
-    localStorage.setItem("email", "teach@example.com");
-    localStorage.setItem("role", "lecturer");
+    (window as Window & { __EDUGUARD_E2E_SESSION__?: unknown }).__EDUGUARD_E2E_SESSION__ = {
+      userId: "teach",
+      role: "lecturer",
+      username: "teach",
+      email: "teach@example.com",
+      name: "Dr Smith",
+    };
   });
 }
 

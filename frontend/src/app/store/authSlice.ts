@@ -1,6 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Role } from "@/shared/types/auth";
-import { clearPersistedSession, loadPersistedSession, persistSession } from "@/shared/lib/authSession";
 
 type AuthState = {
     isAuthed: boolean;
@@ -19,15 +18,19 @@ type SessionPayload = {
     email?: string;
 };
 
-const persisted = typeof window !== "undefined" ? loadPersistedSession() : null;
+const e2eSession =
+    import.meta.env.DEV && import.meta.env.VITE_E2E_SESSION === "true"
+        ? (window as Window & { __EDUGUARD_E2E_SESSION__?: SessionPayload })
+              .__EDUGUARD_E2E_SESSION__ ?? null
+        : null;
 
 const initialState: AuthState = {
-    isAuthed: Boolean(persisted?.userId && persisted?.role),
-    userId: persisted?.userId ?? null,
-    role: persisted?.role ?? null,
-    name: persisted?.name ?? null,
-    username: persisted?.username ?? null,
-    email: persisted?.email ?? null,
+    isAuthed: Boolean(e2eSession?.userId && e2eSession?.role),
+    userId: e2eSession?.userId ?? null,
+    role: e2eSession?.role ?? null,
+    name: e2eSession?.name ?? null,
+    username: e2eSession?.username ?? null,
+    email: e2eSession?.email ?? null,
 };
 
 const authSlice = createSlice({
@@ -41,16 +44,8 @@ const authSlice = createSlice({
             state.username = action.payload.username ?? null;
             state.email = action.payload.email ?? null;
             state.isAuthed = true;
-            persistSession({
-                userId: action.payload.userId,
-                role: action.payload.role,
-                name: action.payload.name ?? null,
-                username: action.payload.username ?? null,
-                email: action.payload.email ?? null,
-            });
         },
         clearSession() {
-            clearPersistedSession();
             return {
                 isAuthed: false,
                 userId: null,

@@ -105,12 +105,8 @@ async function seedSession(page: Page, role: Role) {
       email: `${username}@example.com`,
       name: selectedRole === "student" ? "Minaya" : selectedRole === "lecturer" ? "Dr Smith" : "Admin User",
     };
-    localStorage.setItem("eduguard.session", JSON.stringify(session));
-    localStorage.setItem("eduguard.name", session.name);
-    localStorage.setItem("userId", username);
-    localStorage.setItem("username", username);
-    localStorage.setItem("email", session.email);
-    localStorage.setItem("role", selectedRole);
+    (window as Window & { __EDUGUARD_E2E_SESSION__?: typeof session })
+      .__EDUGUARD_E2E_SESSION__ = session;
   }, role);
 }
 

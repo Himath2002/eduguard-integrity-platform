@@ -83,7 +83,7 @@ export default function StudentSettingsPage() {
   };
 
   const email = useMemo(
-    () => auth.email || localStorage.getItem("email") || "",
+    () => auth.email || "",
     [auth.email]
   );
 

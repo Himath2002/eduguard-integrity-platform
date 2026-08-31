@@ -8,6 +8,7 @@ from typing import List
 import fitz  # PyMuPDF
 
 from .normalization import normalize_text
+from .storage import resolve_safe_pdf_path
 
 
 @dataclass
@@ -70,9 +71,7 @@ def _strip_common_headers_footers(page_texts: List[str], top_lines: int = 2, bot
 
 
 def extract_pdf_text(path: str | Path) -> ExtractedDocument:
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"PDF not found: {p}")
+    p = resolve_safe_pdf_path(path)
 
     doc = fitz.open(p.as_posix())
     pages = []

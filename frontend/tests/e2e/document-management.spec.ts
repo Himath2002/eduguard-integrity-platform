@@ -83,41 +83,25 @@ function makeFixture() {
 
 async function seedStudentSession(page: Page) {
   await page.addInitScript(() => {
-    localStorage.setItem(
-      "eduguard.session",
-      JSON.stringify({
-        userId: "student-1",
-        role: "student",
-        username: "student1",
-        email: "student1@example.com",
-        name: "Minaya",
-      })
-    );
-    localStorage.setItem("eduguard.name", "Minaya");
-    localStorage.setItem("userId", "student-1");
-    localStorage.setItem("username", "student1");
-    localStorage.setItem("email", "student1@example.com");
-    localStorage.setItem("role", "student");
+    (window as Window & { __EDUGUARD_E2E_SESSION__?: unknown }).__EDUGUARD_E2E_SESSION__ = {
+      userId: "student-1",
+      role: "student",
+      username: "student1",
+      email: "student1@example.com",
+      name: "Minaya",
+    };
   });
 }
 
 async function seedLecturerSession(page: Page) {
   await page.addInitScript(() => {
-    localStorage.setItem(
-      "eduguard.session",
-      JSON.stringify({
-        userId: "lecturer-1",
-        role: "lecturer",
-        username: "lecturer1",
-        email: "lecturer1@example.com",
-        name: "Dr Smith",
-      })
-    );
-    localStorage.setItem("eduguard.name", "Dr Smith");
-    localStorage.setItem("userId", "lecturer-1");
-    localStorage.setItem("username", "lecturer1");
-    localStorage.setItem("email", "lecturer1@example.com");
-    localStorage.setItem("role", "lecturer");
+    (window as Window & { __EDUGUARD_E2E_SESSION__?: unknown }).__EDUGUARD_E2E_SESSION__ = {
+      userId: "lecturer-1",
+      role: "lecturer",
+      username: "lecturer1",
+      email: "lecturer1@example.com",
+      name: "Dr Smith",
+    };
   });
 }
 

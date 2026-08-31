@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import traceback
 import hashlib
 from pathlib import Path
@@ -20,7 +19,7 @@ from app.ai.features import stylometry_features, linguistic_features
 from app.ai.plagiarism import semantic_similarity_search
 from app.ai.risk import compute_ai_risk
 from app.ai.ai_config import get_ai_risk_config, get_ai_model_config
-from app.ai.storage import fetch_pdf_to_local
+from app.ai.storage import cleanup_downloaded_pdf, fetch_pdf_to_local
 from app.services.realtime import push_realtime_event
 from app.services.s3_service import get_bucket_name, has_s3_storage
 
@@ -260,11 +259,8 @@ def _index_assignment_materials(
         except Exception:
             skipped_files += 1
         finally:
-            if cleanup and local_path and os.path.exists(local_path):
-                try:
-                    os.remove(local_path)
-                except Exception:
-                    pass
+            if cleanup:
+                cleanup_downloaded_pdf(local_path)
 
     db.commit()
     return {
@@ -427,11 +423,8 @@ def index_online_sources_from_folder(
         except Exception:
             summary["skipped_files"] += 1
         finally:
-            if cleanup and local_path and os.path.exists(local_path):
-                try:
-                    os.remove(local_path)
-                except Exception:
-                    pass
+            if cleanup:
+                cleanup_downloaded_pdf(local_path)
 
     candidates = list((root / "global").glob("*.pdf"))
     if class_id is not None:
@@ -754,8 +747,5 @@ def run_plagiarism_for_submission(
         return job, None
 
     finally:
-        if cleanup_temp_file and resolved_local_path and os.path.exists(resolved_local_path):
-            try:
-                os.remove(resolved_local_path)
-            except Exception:
-                pass
+        if cleanup_temp_file:
+            cleanup_downloaded_pdf(resolved_local_path)
