@@ -654,7 +654,7 @@ def _student_dashboard_summary_payload(db: Session, student: User):
             "id": f"class-{item['code']}",
             "tone": "amber",
             "icon": "👥",
-            "text": f"Joined class: {item['code']} — {item['name']}",
+            "text": f"Joined class: {item['code']} - {item['name']}",
         })
 
     def _activity_sort_key(item):

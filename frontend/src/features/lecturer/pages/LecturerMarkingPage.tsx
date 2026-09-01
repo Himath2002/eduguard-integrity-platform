@@ -459,7 +459,7 @@ export default function LecturerMarkingPage() {
       key: "classCode",
       label: "Class",
       type: "select",
-      options: classes.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` })),
+      options: classes.map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` })),
       getValue: (item) => item.class_code,
     },
     {
@@ -543,7 +543,7 @@ export default function LecturerMarkingPage() {
     for (const item of visibleFilteredItems) {
       const key = item.class_code || "Unknown";
       if (!buckets.has(key)) {
-        buckets.set(key, { title: `${item.class_code} — ${item.class_name}`, rows: [] });
+        buckets.set(key, { title: `${item.class_code} - ${item.class_name}`, rows: [] });
       }
       buckets.get(key)!.rows.push(item);
     }
@@ -818,7 +818,7 @@ export default function LecturerMarkingPage() {
                             <div className="min-w-0">
                               <div className="marking-report-name truncate text-lg font-black tracking-tight text-slate-950">{item.assignment_title}</div>
                               <div className="mt-1 text-sm font-medium text-slate-600">Student: {item.student_username}</div>
-                              <div className="mt-1 text-sm text-slate-500">Submitted: {item.submitted_at || "—"}</div>
+                              <div className="mt-1 text-sm text-slate-500">Submitted: {item.submitted_at || "-"}</div>
                             </div>
                             <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-bold ${statusBadge(item.mark_status)}`}>{statusLabel(item.mark_status)}</span>
                           </div>
@@ -874,7 +874,7 @@ export default function LecturerMarkingPage() {
       <PortalModal
         open={open}
         onClose={closeModal}
-        title={selected ? `Mark assignment — ${selected.assignment_title}` : "Mark assignment"}
+        title={selected ? `Mark assignment - ${selected.assignment_title}` : "Mark assignment"}
         widthClass="max-w-[96rem]"
       >
         {detailErr ? <p className="text-sm text-red-600">{detailErr}</p> : null}
@@ -907,7 +907,7 @@ export default function LecturerMarkingPage() {
                     <div className="marking-modal-muted mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-medium text-slate-600">
                       <span>{selected.class_code} • {selected.class_name}</span>
                       <span>Student: {selected.student_username}</span>
-                      <span>Submitted: {selected.submitted_at || "—"}</span>
+                      <span>Submitted: {selected.submitted_at || "-"}</span>
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-2">

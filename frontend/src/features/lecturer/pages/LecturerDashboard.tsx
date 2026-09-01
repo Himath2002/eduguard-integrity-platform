@@ -1343,7 +1343,7 @@ export default function LecturerDashboard() {
                             <p className="mt-2 text-xs text-slate-500">
                               {item.created_at
                                 ? new Date(item.created_at).toLocaleString()
-                                : "—"}
+                                : "-"}
                             </p>
 
                             <div className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-700">
@@ -1613,7 +1613,7 @@ export default function LecturerDashboard() {
                         </p>
 
                         <p className="mt-2 text-sm font-bold text-slate-900">
-                          {nextDeadline?.title ?? "—"}
+                          {nextDeadline?.title ?? "-"}
                         </p>
 
                         <p className="mt-1 text-xs text-slate-600">

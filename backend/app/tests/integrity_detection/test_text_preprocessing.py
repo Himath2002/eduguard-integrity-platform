@@ -11,7 +11,7 @@ from app.ai.normalization import (
 
 
 def test_normalize_text_collapses_unicode_whitespace_and_smart_quotes() -> None:
-    raw = "  The\u00a0student’s\twork\r\nuses “quoted” — evidence.  "
+    raw = "  The\u00a0student’s\twork\r\nuses “quoted” - evidence.  "
 
     normalized = normalize_text(raw)
 

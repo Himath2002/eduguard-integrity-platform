@@ -1083,7 +1083,7 @@ export default function StudentAssignmentsPage() {
         type: "select",
         options: classes.map((c) => ({
           value: c.code,
-          label: `${c.code} — ${c.title}`,
+          label: `${c.code} - ${c.title}`,
         })),
         getValue: (item) => item.classCode,
       },
@@ -1330,13 +1330,13 @@ export default function StudentAssignmentsPage() {
                     <div className="mt-2 text-sm">
                       <span className="text-slate-500">Due:</span>{" "}
                       <span className="font-medium text-slate-800">
-                        {a.due || "—"}
+                        {a.due || "-"}
                       </span>
                     </div>
 
                     {a.has_marked_report && (
                       <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                        Marked: {a.mark_score ?? "—"}
+                        Marked: {a.mark_score ?? "-"}
                         {typeof a.mark_max_score === "number"
                           ? ` / ${a.mark_max_score}`
                           : ""}
@@ -1405,7 +1405,7 @@ export default function StudentAssignmentsPage() {
                 </div>
 
                 <div className="mt-1 text-sm assignment-muted">
-                  Due: {isoToDate(detail.due_at) || "—"}
+                  Due: {isoToDate(detail.due_at) || "-"}
                 </div>
               </div>
 
@@ -1496,7 +1496,7 @@ export default function StudentAssignmentsPage() {
                         <div className="mt-1 text-sm assignment-muted">
                           Mark:{" "}
                           <span className="font-semibold text-blue-700">
-                            {detail.mark_report.score ?? "—"}
+                            {detail.mark_report.score ?? "-"}
                             {typeof detail.mark_report.max_score === "number"
                               ? ` / ${detail.mark_report.max_score}`
                               : ""}

@@ -904,7 +904,7 @@ export default function AdminReports() {
             {
               value: row.class_code,
               label: row.class_name
-                ? `${row.class_code} — ${row.class_name}`
+                ? `${row.class_code} - ${row.class_name}`
                 : row.class_code,
             },
           ])
@@ -1264,10 +1264,10 @@ export default function AdminReports() {
 
                 <div className="admin-report-copy mt-2 space-y-1 text-sm">
                   <div>
-                    Course: {row.class_code} — {row.class_name}
+                    Course: {row.class_code} - {row.class_name}
                   </div>
                   <div>Lecturer: {row.lecturer_name}</div>
-                  <div>Submitted: {row.submitted_at || "—"}</div>
+                  <div>Submitted: {row.submitted_at || "-"}</div>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -1347,7 +1347,7 @@ export default function AdminReports() {
         onClose={closeReport}
         title={
           selected
-            ? `Submission #${selected.submission_id} — ${selected.assignment_title}`
+            ? `Submission #${selected.submission_id} - ${selected.assignment_title}`
             : "Submission Details"
         }
         widthClass="max-w-6xl"
@@ -1480,7 +1480,7 @@ export default function AdminReports() {
                   Lecturer: <span className="font-medium text-slate-800">{selected.lecturer_name}</span>
                 </div>
                 <div>
-                  Submitted: <span className="font-medium text-slate-800">{selected.submitted_at || "—"}</span>
+                  Submitted: <span className="font-medium text-slate-800">{selected.submitted_at || "-"}</span>
                 </div>
                 <div>
                   Attempt: <span className="font-medium text-slate-800">{selected.attempt_no}</span>
@@ -1504,7 +1504,7 @@ export default function AdminReports() {
         }}
         title={
           selected
-            ? `Detailed Report — Submission #${selected.submission_id}`
+            ? `Detailed Report - Submission #${selected.submission_id}`
             : "Detailed Report"
         }
         widthClass="max-w-6xl"

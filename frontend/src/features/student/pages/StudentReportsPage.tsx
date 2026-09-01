@@ -819,7 +819,7 @@ export default function StudentReportsPage() {
         type: "select",
         options: classes.map((c) => ({
           value: c.code,
-          label: `${c.code} — ${c.title}`,
+          label: `${c.code} - ${c.title}`,
         })),
         getValue: (item) => item.class_code,
       },
@@ -900,7 +900,7 @@ export default function StudentReportsPage() {
         type: "select",
         options: classes.map((c) => ({
           value: c.code,
-          label: `${c.code} — ${c.title}`,
+          label: `${c.code} - ${c.title}`,
         })),
         getValue: (item) => item.class_code,
       },
@@ -1277,7 +1277,7 @@ export default function StudentReportsPage() {
 
                   <div className="mt-2 space-y-1 text-sm text-slate-600">
                     <div>
-                      Course: {report.class_code} — {report.class_name}
+                      Course: {report.class_code} - {report.class_name}
                     </div>
 
                     <div>Submitted: {report.submitted_at}</div>
@@ -1356,7 +1356,7 @@ export default function StudentReportsPage() {
                       </div>
 
                       <div className="text-2xl font-semibold">
-                        {report.score ?? "—"}
+                        {report.score ?? "-"}
                         {typeof report.max_score === "number"
                           ? ` / ${report.max_score}`
                           : ""}
@@ -1430,7 +1430,7 @@ export default function StudentReportsPage() {
         onClose={closeIntegrityModal}
         title={
           selectedIntegrity
-            ? `${selectedIntegrity.assignment_title} — Integrity report`
+            ? `${selectedIntegrity.assignment_title} - Integrity report`
             : "Integrity report"
         }
         widthClass="max-w-6xl"
@@ -1583,7 +1583,7 @@ export default function StudentReportsPage() {
         onClose={closeMarkedModal}
         title={
           selectedMarked
-            ? `Marked feedback — ${selectedMarked.assignment_title}`
+            ? `Marked feedback - ${selectedMarked.assignment_title}`
             : "Marked feedback"
         }
         widthClass="max-w-6xl"
@@ -1613,7 +1613,7 @@ export default function StudentReportsPage() {
                 </div>
 
                 <div className="text-2xl font-semibold">
-                  {markedDetail.score ?? "—"}
+                  {markedDetail.score ?? "-"}
                   {typeof markedDetail.max_score === "number"
                     ? ` / ${markedDetail.max_score}`
                     : ""}

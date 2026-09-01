@@ -163,7 +163,7 @@ export default function StudentClassesPage() {
         key: "classCode",
         label: "Class",
         type: "select",
-        options: classes.map((item) => ({ value: item.code, label: `${item.code} — ${item.name}` })),
+        options: classes.map((item) => ({ value: item.code, label: `${item.code} - ${item.name}` })),
         getValue: (item) => item.code,
       },
       {

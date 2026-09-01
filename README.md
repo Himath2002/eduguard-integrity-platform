@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/eduguard-hero.svg" alt="EduGuard — evidence-led academic integrity platform" width="100%" />
+  <img src="docs/assets/eduguard-hero.svg" alt="EduGuard - evidence-led academic integrity platform" width="100%" />
 </p>
 
 <p align="center">
@@ -14,7 +14,7 @@
   <strong>A full-stack workspace for submission integrity, evidence review, assessment feedback, and role-aware academic operations.</strong>
 </p>
 
-EduGuard brings students, lecturers, and administrators into one controlled workflow. It combines PDF validation, semantic source matching, multi-signal AI-risk analysis, human review, marking, reporting, and contextual communication—without treating an automated score as an academic decision.
+EduGuard brings students, lecturers, and administrators into one controlled workflow. It combines PDF validation, semantic source matching, multi-signal AI-risk analysis, human review, marking, reporting, and contextual communication-without treating an automated score as an academic decision.
 
 > [!IMPORTANT]
 > Integrity results are decision-support evidence. EduGuard keeps the lecturer in control of interpretation, false-positive correction, feedback, and publication.
@@ -59,11 +59,11 @@ The interface is responsive, animated, and organized around three protected work
   <img src="docs/assets/integrity-workflow.svg" alt="EduGuard submission, analysis, human review, and feedback workflow" width="100%" />
 </p>
 
-1. **Controlled submission** — validates extension, MIME type, file signature, size, enrollment, attempt rules, and assignment state.
-2. **Document preparation** — extracts and normalizes PDF text into comparable evidence units.
-3. **Evidence analysis** — combines semantic source matching with configurable multi-signal AI-risk analysis.
-4. **Human review** — exposes phrases, sources, confidence signals, and false-positive correction with review locking and version history.
-5. **Accountable feedback** — produces highlighted reports, marking annotations, publication controls, announcements, and contextual discussion.
+1. **Controlled submission** - validates extension, MIME type, file signature, size, enrollment, attempt rules, and assignment state.
+2. **Document preparation** - extracts and normalizes PDF text into comparable evidence units.
+3. **Evidence analysis** - combines semantic source matching with configurable multi-signal AI-risk analysis.
+4. **Human review** - exposes phrases, sources, confidence signals, and false-positive correction with review locking and version history.
+5. **Accountable feedback** - produces highlighted reports, marking annotations, publication controls, announcements, and contextual discussion.
 
 ## Architecture
 
@@ -81,13 +81,13 @@ EduGuard deliberately separates presentation, orchestration, analysis, and state
 
 ## Engineering highlights
 
-- **Evidence before verdicts** — detailed sources, highlighted text, component signals, and confidence context remain inspectable.
-- **False-positive governance** — lecturer overrides are locked, idempotent, persisted, and versioned.
-- **Private document handling** — generated upload paths are excluded from Git; S3 objects are private and accessed through short-lived signed operations.
-- **Memory-bound browser identity** — account metadata stays in application state instead of persistent web storage, reducing exposure on shared devices.
-- **Resilient submission rules** — failed analysis does not consume a valid attempt, while attempt identifiers remain collision-safe.
-- **Focused delivery** — route-level lazy loading reduced the production entry bundle from a monolithic payload to independently loaded feature chunks.
-- **Layered verification** — backend, component, browser, API-collection, and performance suites cover the system at different boundaries.
+- **Evidence before verdicts** - detailed sources, highlighted text, component signals, and confidence context remain inspectable.
+- **False-positive governance** - lecturer overrides are locked, idempotent, persisted, and versioned.
+- **Private document handling** - generated upload paths are excluded from Git; S3 objects are private and accessed through short-lived signed operations.
+- **Memory-bound browser identity** - account metadata stays in application state instead of persistent web storage, reducing exposure on shared devices.
+- **Resilient submission rules** - failed analysis does not consume a valid attempt, while attempt identifiers remain collision-safe.
+- **Focused delivery** - route-level lazy loading reduced the production entry bundle from a monolithic payload to independently loaded feature chunks.
+- **Layered verification** - backend, component, browser, API-collection, and performance suites cover the system at different boundaries.
 
 ## Technology stack
 

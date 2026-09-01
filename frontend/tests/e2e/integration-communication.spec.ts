@@ -368,8 +368,8 @@ async function setupCommunicationHarness(
           function renderThreads(threads) {
             const container = document.getElementById("threads");
             container.innerHTML = threads.map((item) => \`
-              <button class="thread-button" data-thread-id="\${item.id}" aria-label="\${escapeHtml(item.student_name)} — \${escapeHtml(item.assignment_title)}">
-                <div class="thread-title">\${escapeHtml(item.student_name)} — \${escapeHtml(item.assignment_title)}</div>
+              <button class="thread-button" data-thread-id="\${item.id}" aria-label="\${escapeHtml(item.student_name)} - \${escapeHtml(item.assignment_title)}">
+                <div class="thread-title">\${escapeHtml(item.student_name)} - \${escapeHtml(item.assignment_title)}</div>
                 <div class="thread-meta">\${escapeHtml(item.class_code)} • Comment \${item.annotation_order_no}</div>
                 <div class="thread-comment">\${escapeHtml(item.annotation_comment)}</div>
                 <div class="muted" style="margin-top:8px">\${escapeHtml(item.latest_message)}</div>
@@ -510,7 +510,7 @@ test.describe("Integration and Communication E2E workflow", () => {
     await setupCommunicationHarness(page);
 
     await expect(page.getByRole("heading", { name: /messages/i })).toBeVisible();
-    await expect(page.getByText(/Mina Student — Essay 1/i)).toBeVisible();
+    await expect(page.getByText(/Mina Student - Essay 1/i)).toBeVisible();
     await expect(page.getByText(/Can you clarify this comment\?/i)).toBeVisible();
 
     await page.getByRole("button", { name: /Mina Student.*Essay 1/i }).click();

@@ -1,4 +1,4 @@
-# Integrity Detection Engine — Step 3 Advanced Test Strategy and Traceability
+# Integrity Detection Engine - Step 3 Advanced Test Strategy and Traceability
 
 ## Purpose
 

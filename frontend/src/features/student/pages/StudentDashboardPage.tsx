@@ -721,7 +721,7 @@ function AnnouncementCard({
       </div>
 
       <div className={["mt-1 text-xs", isDark ? "text-slate-400" : "text-slate-500"].join(" ")}>
-        {item.created_at ? new Date(item.created_at).toLocaleString() : "—"}
+        {item.created_at ? new Date(item.created_at).toLocaleString() : "-"}
       </div>
 
       <div className={["sd-announcement-body mt-3 text-sm leading-7", isDark ? "text-sky-100/88" : "text-slate-700"].join(" ")}>

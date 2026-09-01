@@ -191,7 +191,7 @@ export default function LecturerAssignmentsPage() {
         key: "classCode",
         label: "Class",
         type: "select",
-        options: classes.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` })),
+        options: classes.map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` })),
         getValue: (item) => item.classCode,
       },
       {
@@ -507,7 +507,7 @@ export default function LecturerAssignmentsPage() {
                 <option value="">Select a class</option>
                 {classOptions.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.code} — {c.name}
+                    {c.code} - {c.name}
                   </option>
                 ))}
               </select>
@@ -595,7 +595,7 @@ export default function LecturerAssignmentsPage() {
                 {editMode ? "Edit Assignment" : "Assignment Details"}
               </h3>
               <p className="text-slate-600 mt-1">
-                {detail?.class?.code ? `Class: ${detail.class.code} — ${detail.class.name}` : " "}
+                {detail?.class?.code ? `Class: ${detail.class.code} - ${detail.class.name}` : " "}
               </p>
 
               {viewErr && <p className="mt-3 text-sm text-red-600">{viewErr}</p>}

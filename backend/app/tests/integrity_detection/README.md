@@ -2,15 +2,15 @@
 
 This folder contains the backend regression tests for the Integrity Detection Engine component.
 
-## Step 1 — Core engine foundation
+## Step 1 - Core engine foundation
 
 Covers text normalization, boilerplate/reference cleanup, chunking, AI probability interpretation, AI detector fail-open behavior, plagiarism matching, source metadata, generic phrase suppression, and stable pipeline contracts.
 
-## Step 2 — Reports, resubmission, fallback, and UI contracts
+## Step 2 - Reports, resubmission, fallback, and UI contracts
 
 Covers integrity job schema, safe error messages, highlighted PDF generation, report preview/download consistency, detailed plagiarism source evidence, failed/stuck retry behavior, resubmission cleanup, marked-submission locking, and negative/security validation.
 
-## Step 3 — E2E/API/performance/traceability assets
+## Step 3 - E2E/API/performance/traceability assets
 
 Adds validation that final Step 3 testing assets exist and remain complete:
 

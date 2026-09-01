@@ -395,7 +395,7 @@ export default function LecturerSettingsPage() {
                 Editing
               </p>
               <p className="settings-strong mt-1 font-bold">
-                {selectedClass ? `${selectedClass.code} — ${selectedClass.name}` : "No class selected"}
+                {selectedClass ? `${selectedClass.code} - ${selectedClass.name}` : "No class selected"}
               </p>
             </div>
           </div>
@@ -420,7 +420,7 @@ export default function LecturerSettingsPage() {
                   ) : null}
                   {classes.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.code} — {c.name}
+                      {c.code} - {c.name}
                     </option>
                   ))}
                 </select>

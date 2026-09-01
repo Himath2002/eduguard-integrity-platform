@@ -98,9 +98,9 @@ function resolveLecturerDarkMode() {
 }
 
 function formatWhen(value?: string | null) {
-  if (!value) return "—";
+  if (!value) return "-";
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleString();
 }
 
@@ -428,7 +428,7 @@ export default function LecturerStudentsPage() {
         key: "classCode",
         label: "Class",
         type: "select",
-        options: classes.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` })),
+        options: classes.map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` })),
         getValue: (item) => item.class_code,
       },
       {
@@ -668,7 +668,7 @@ export default function LecturerStudentsPage() {
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-slate-900">
-                      {classItem.class_code} — {classItem.class_name}
+                      {classItem.class_code} - {classItem.class_name}
                     </h3>
                     <p className="text-sm text-slate-600">
                       {classItem.completed_assignments}/{classItem.total_assignments} assignments submitted

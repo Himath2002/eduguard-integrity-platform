@@ -81,7 +81,7 @@ function formatWhen(value?: string | null) {
 
 function threadTitle(role: "student" | "lecturer", thread: ThreadSummary) {
   if (role === "student") return thread.assignment_title;
-  return `${thread.student_name || thread.student_username} — ${thread.assignment_title}`;
+  return `${thread.student_name || thread.student_username} - ${thread.assignment_title}`;
 }
 
 function buildWsUrl(role: "student" | "lecturer", ident: string) {
@@ -209,7 +209,7 @@ export default function CommunicationWorkspace({
             const wait = Math.min(15000, 1500 * attempts);
             reconnectTimer = window.setTimeout(connect, wait);
           } else {
-            setConnectingLabel("Live updates unavailable — refresh to retry");
+            setConnectingLabel("Live updates unavailable - refresh to retry");
           }
         }
       };
@@ -528,7 +528,7 @@ export default function CommunicationWorkspace({
                         </div>
                         <div className="mt-1 text-xs text-slate-500">
                           {thread.class_code} • Comment{" "}
-                          {thread.annotation_order_no ?? "—"}
+                          {thread.annotation_order_no ?? "-"}
                         </div>
                       </div>
                       {thread.unread_count > 0 ? (
@@ -578,7 +578,7 @@ export default function CommunicationWorkspace({
                           Mark
                         </div>
                         <div className="text-2xl font-semibold">
-                          {detail.context.score ?? "—"}
+                          {detail.context.score ?? "-"}
                           {typeof detail.context.max_score === "number"
                             ? ` / ${detail.context.max_score}`
                             : ""}

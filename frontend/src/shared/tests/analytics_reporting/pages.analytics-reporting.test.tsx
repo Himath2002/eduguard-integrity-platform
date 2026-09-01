@@ -396,7 +396,7 @@ describe("Analytics and Reporting frontend page tests", () => {
       );
     });
 
-    expect(await screen.findByText(/Research Summary — Integrity report/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Research Summary - Integrity report/i)).toBeInTheDocument();
 
     expect(screen.getByTestId("highlighted-report-text")).toHaveTextContent(
       "Student plagiarism report text with matched sentence."
@@ -469,7 +469,7 @@ describe("Analytics and Reporting frontend page tests", () => {
       );
     });
 
-    expect(await screen.findByText(/Marked feedback — Final Essay/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Marked feedback - Final Essay/i)).toBeInTheDocument();
 
     expect(screen.getByText("Strong structure with minor citation issues.")).toBeInTheDocument();
     expect(screen.getByText("Improve citation format.")).toBeInTheDocument();

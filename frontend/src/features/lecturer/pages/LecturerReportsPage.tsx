@@ -1021,7 +1021,7 @@ export default function LecturerReportsPage() {
         type: "select",
         options: classes.map((c) => ({
           value: c.code,
-          label: `${c.code} — ${c.name}`,
+          label: `${c.code} - ${c.name}`,
         })),
         getValue: (item) => item.class_code,
       },
@@ -1600,7 +1600,7 @@ export default function LecturerReportsPage() {
 
               <div className="reports-report-subtext relative mt-2 space-y-1 text-sm text-slate-600">
                 <div>
-                  Course: {r.class_code} — {r.class_name}
+                  Course: {r.class_code} - {r.class_name}
                 </div>
                 <div>Submitted: {r.submitted_at}</div>
               </div>
@@ -1688,7 +1688,7 @@ export default function LecturerReportsPage() {
         onClose={closeReport}
         title={
           selected
-            ? `Submission #${selected.submission_id} — ${selected.assignment_title}`
+            ? `Submission #${selected.submission_id} - ${selected.assignment_title}`
             : "Submission Details"
         }
         widthClass="max-w-6xl"
@@ -1844,7 +1844,7 @@ export default function LecturerReportsPage() {
         }}
         title={
           selected
-            ? `Detailed Report — Submission #${selected.submission_id}`
+            ? `Detailed Report - Submission #${selected.submission_id}`
             : "Detailed Report"
         }
         widthClass="max-w-6xl"
@@ -2000,7 +2000,7 @@ export default function LecturerReportsPage() {
         onClose={closeReport}
         title={
           selected
-            ? `False Detection Review — Submission #${selected.submission_id}`
+            ? `False Detection Review - Submission #${selected.submission_id}`
             : "False Detection Review"
         }
         widthClass="max-w-6xl"

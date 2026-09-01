@@ -56,7 +56,7 @@
       <rect width="1440" height="126" rx="24" fill="#0f1b2d" stroke="#334155"/>
       <text x="32" y="40" fill="#a78bfa" font-size="15" font-weight="800" letter-spacing="2">03 · INTEGRITY INTELLIGENCE</text>
       <text x="32" y="78" fill="#f1f5f9" font-size="25" font-weight="750">Evidence generation</text>
-      <text x="32" y="104" fill="#94a3b8" font-size="16">Signals inform—not replace—academic judgment</text>
+      <text x="32" y="104" fill="#94a3b8" font-size="16">Signals inform-not replace-academic judgment</text>
       <g transform="translate(430,27)" font-size="17" font-weight="700" text-anchor="middle">
         <g><rect width="210" height="72" rx="18" fill="#201a3d" stroke="#8b5cf6"/><text x="105" y="44" fill="#e2e8f0">PDF extraction</text></g>
         <g transform="translate(232,0)"><rect width="210" height="72" rx="18" fill="#201a3d" stroke="#8b5cf6"/><text x="105" y="44" fill="#e2e8f0">Semantic matching</text></g>

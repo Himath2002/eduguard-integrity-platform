@@ -18,9 +18,9 @@ const INITIAL_HISTORY_LIMIT = 4;
 const BODY_PREVIEW_LIMIT = 180;
 
 function formatWhen(value?: string | null) {
-  if (!value) return "—";
+  if (!value) return "-";
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleString();
 }
 

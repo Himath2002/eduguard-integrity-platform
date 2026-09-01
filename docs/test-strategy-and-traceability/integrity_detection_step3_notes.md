@@ -1,4 +1,4 @@
-# Integrity Detection Engine — Step 3 Notes
+# Integrity Detection Engine - Step 3 Notes
 
 Step 3 adds final workflow, API, performance, and traceability coverage for the Integrity Detection Engine component. It is designed as a separate substantial testing commit after Step 1 and Step 2.
 

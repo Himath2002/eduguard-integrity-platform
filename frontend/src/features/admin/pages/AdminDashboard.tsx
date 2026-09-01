@@ -451,7 +451,7 @@ export default function AdminDashboard() {
                   <p className="soft-text mt-1 text-xs">
                     {latestAnnouncement.created_at
                       ? new Date(latestAnnouncement.created_at).toLocaleString()
-                      : "—"}
+                      : "-"}
                   </p>
                   <p className="muted-text mt-3 text-sm leading-6">
                     {latestAnnouncement.body}

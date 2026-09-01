@@ -195,7 +195,7 @@ describe("Integration and Communication workspace tests", () => {
     renderWorkspace();
 
     expect(await screen.findByText("Messages")).toBeInTheDocument();
-    expect(await screen.findByText(/Mina Student — Essay 1/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Mina Student - Essay 1/i)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(

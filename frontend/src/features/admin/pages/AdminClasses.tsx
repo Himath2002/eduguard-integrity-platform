@@ -72,9 +72,9 @@ type OrderValue =
   | "submissions_low";
 
 function formatWhen(value?: string | null) {
-  if (!value) return "—";
+  if (!value) return "-";
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleString();
 }
 
@@ -737,7 +737,7 @@ export default function AdminClasses() {
       .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
       .map((row) => ({
         value: String(row.id),
-        label: `${row.code} — ${row.name}`,
+        label: `${row.code} - ${row.name}`,
       }));
 
     const lecturerMap = new Map<string, { value: string; label: string }>();

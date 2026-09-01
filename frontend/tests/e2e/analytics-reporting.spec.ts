@@ -434,7 +434,7 @@ test.describe("Analytics and Reporting E2E Workflow", () => {
     const detailsModal = page.locator('[data-eg-modal="true"]').last();
 
     await expect(
-      detailsModal.getByText("Submission #9001 — Academic Integrity Case Study", { exact: true })
+      detailsModal.getByText("Submission #9001 - Academic Integrity Case Study", { exact: true })
     ).toBeVisible();
 
     await expect(detailsModal.getByText("Similarity & AI Risk", { exact: true })).toBeVisible();
@@ -459,7 +459,7 @@ test.describe("Analytics and Reporting E2E Workflow", () => {
     const detailedModal = page.locator('[data-eg-modal="true"]').last();
 
     await expect(
-      detailedModal.getByText("Detailed Report — Submission #9001", { exact: true })
+      detailedModal.getByText("Detailed Report - Submission #9001", { exact: true })
     ).toBeVisible();
 
     await expect(detailedModal.getByText("Lecture: 1", { exact: true })).toBeVisible();
@@ -486,7 +486,7 @@ test.describe("Analytics and Reporting E2E Workflow", () => {
 
     await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
     await expect(page.getByText("Assignment: Research Essay (mina)", { exact: true })).toBeVisible();
-    await expect(page.getByText("Course: FIT101 — Foundations of Integrity", { exact: true })).toBeVisible();
+    await expect(page.getByText("Course: FIT101 - Foundations of Integrity", { exact: true })).toBeVisible();
     await expect(page.getByText("Plagiarism: 74%", { exact: true })).toBeVisible();
     await expect(page.getByText("AI Risk: 66% (medium)", { exact: true })).toBeVisible();
 
@@ -498,7 +498,7 @@ test.describe("Analytics and Reporting E2E Workflow", () => {
 
     const modal = page.locator('[data-eg-modal="true"]').last();
 
-    await expect(modal.getByText("Submission #7001 — Research Essay", { exact: true })).toBeVisible();
+    await expect(modal.getByText("Submission #7001 - Research Essay", { exact: true })).toBeVisible();
     await expect(modal.getByText("repeated lecture definition").first()).toBeVisible();
     await expect(modal.getByText("Similarity & AI Risk", { exact: true })).toBeVisible();
 
@@ -528,7 +528,7 @@ test.describe("Analytics and Reporting E2E Workflow", () => {
     await expect(page.getByRole("button", { name: "Marked feedback" })).toBeVisible();
 
     await expect(page.getByText("Assignment: Academic Integrity Case Study", { exact: true })).toBeVisible();
-    await expect(page.getByText("Course: FIT101 — Foundations of Integrity", { exact: true })).toBeVisible();
+    await expect(page.getByText("Course: FIT101 - Foundations of Integrity", { exact: true })).toBeVisible();
     await expect(page.getByText("Plagiarism: 38%", { exact: true })).toBeVisible();
     await expect(page.getByText("AI Risk: 58% (medium)", { exact: true })).toBeVisible();
 
@@ -537,7 +537,7 @@ test.describe("Analytics and Reporting E2E Workflow", () => {
     const integrityModal = page.locator('[data-eg-modal="true"]').last();
 
     await expect(
-      integrityModal.getByText("Academic Integrity Case Study — Integrity report", { exact: true })
+      integrityModal.getByText("Academic Integrity Case Study - Integrity report", { exact: true })
     ).toBeVisible();
 
     await expect(integrityModal.getByText("matched citation paragraph").first()).toBeVisible();
@@ -563,7 +563,7 @@ test.describe("Analytics and Reporting E2E Workflow", () => {
     const markedModal = page.locator('[data-eg-modal="true"]').last();
 
     await expect(
-      markedModal.getByText("Marked feedback — Academic Integrity Case Study", { exact: true })
+      markedModal.getByText("Marked feedback - Academic Integrity Case Study", { exact: true })
     ).toBeVisible();
 
     await expect(markedModal.getByText("Mark awarded", { exact: true })).toBeVisible();

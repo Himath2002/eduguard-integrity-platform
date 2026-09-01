@@ -1,4 +1,4 @@
-# Integrity Detection Testing Step 1 — Core AI and Plagiarism Engine Foundation
+# Integrity Detection Testing Step 1 - Core AI and Plagiarism Engine Foundation
 
 ## Purpose
 
